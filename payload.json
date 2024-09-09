@@ -1,0 +1,92 @@
+{
+    "DataStores": {
+        "My_Minio_Bucket": {
+            "Endpoint": "https://play.min.io",
+            "Bucket": "faasr-nypd",
+            "Writable": "TRUE",
+            "AccessKey": "My_Minio_Bucket_ACCESS_KEY",
+            "SecretKey": "My_Minio_Bucket_SECRET_KEY"
+        }
+    },
+    "ComputeServers": {
+        "My_GitHub_Account": {
+            "FaaSType": "GitHubActions",
+            "UserName": "Ashish-Ramrakhiani",
+            "ActionRepoName": "NYPD_Public_Safety_Analysis_actions",
+            "Branch": "main",
+            "Token": "My_GitHub_Account_TOKEN"
+        },
+        "My_Lambda_Account": {
+            "FaaSType": "Lambda",
+            "Region": "us-east-2",
+            "AccessKey": "My_Lambda_Account_ACCESS_KEY",
+            "SecretKey": "My_Lambda_Account_SECRET_KEY"
+        }
+    },
+    "FunctionList": {
+        "preprocess": {
+            "FunctionName": "preprocess_nypd_data",
+            "FaaSServer": "My_GitHub_Account",
+            "Arguments": {
+                "folder": "dataset",
+                "input_file": "NYPD_Arrest_Data__Year_to_Date__20240908.csv"
+            },
+            "InvokeNext": [
+                "process_temporal_data",
+                "process_demographic_data",
+                "process_geospatial_data"
+            ]
+        },
+        "process_temporal_data": {
+            "FunctionName": "process_temporal_data",
+            "FaaSServer": "My_GitHub_Account",
+            "Arguments": {
+                "folder": "dataset",
+                "input_file": "temporal_data.csv"
+            },
+            "InvokeNext": "create_dashboard"
+        },
+        "process_demographic_data": {
+            "FunctionName": "process_demographic_data",
+            "FaaSServer": "My_GitHub_Account",
+            "Arguments": {
+                "folder": "dataset",
+                "input_file": "demographic_data.csv"
+            },
+            "InvokeNext": "create_dashboard"
+        },
+        "process_geospatial_data": {
+            "FunctionName": "process_geospatial_data",
+            "FaaSServer": "My_GitHub_Account",
+            "Arguments": {
+                "folder": "dataset",
+                "input_file": "geospatial_data.csv"
+            },
+            "InvokeNext": "create_dashboard"
+        },
+        "create_dashboard": {
+            "FunctionName": "create_dashboard",
+            "FaaSServer": "My_GitHub_Account",
+            "Arguments": {
+                "folder_temporal": "temporal",
+                "temporal_file": "temporal_insights.csv",
+                "folder_demo": "demographic",
+                "demographic_file": "demographic_insights.csv",
+                "folder_geo": "geospatial",
+                "geospatial_file": "geospatial_insights.csv"
+            }
+        }
+    },
+    "FunctionGitRepo": {
+        "preprocess_nypd_data": "Ashish-Ramrakhiani/NYPD_Public_Safety_Analysis",
+        "process_temporal_data": "Ashish-Ramrakhiani/NYPD_Public_Safety_Analysis",
+        "process_demographic_data": "Ashish-Ramrakhiani/NYPD_Public_Safety_Analysis",
+        "process_geospatial_data": "Ashish-Ramrakhiani/NYPD_Public_Safety_Analysis",
+        "create_dashboard": "Ashish-Ramrakhiani/NYPD_Public_Safety_Analysis"
+    },
+    "FunctionInvoke": "preprocess",
+    "FaaSrLog": "NYPD_log",
+    "LoggingDataStore": "My_Minio_Bucket",
+    "DefaultDataStore": "My_Minio_Bucket"
+}
+
